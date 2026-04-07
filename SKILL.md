@@ -48,11 +48,7 @@ If no `-o` argument is provided, `phicli` prints the result to stdout.
 
 ## Safety Notes
 
-Example allowlist:
-
-```bash
-export PHI_ALLOWLIST="https://example.com/tool.py,https://example.com/data.txt"
-```
+With version 0.0.2, now the tool is local-only and safe-to-use.
 
 ## Response Guidance
 
